@@ -1,25 +1,52 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Fragment, useState, useEffect} from 'react';
+import Cita from './components/Cita';
+import Formulario from './components/Formulario';
 
 function App() {
+
+  let citasIniciales = JSON.parse(localStorage.getItem('citas'))
+  if(!citasIniciales){
+    citasIniciales = []
+  }
+
+  const [citas, setCitas] = useState(citasIniciales)
+
+  const crearCita = cita => {
+    setCitas([...citas,cita])
+  }
+
+  const eliminarCita = id => {
+    const nuevasCitas = citas.filter(cita => cita.id !== id);
+    setCitas([...nuevasCitas])
+  }
+
+  useEffect(() => {
+    if(citasIniciales){
+       localStorage.setItem('citas', JSON.stringify(citas))
+    } else{
+      localStorage.setItem('citas', JSON.stringify([]))
+    }
+  }, [citas, citasIniciales])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Fragment>
+      <h1>Administrador de pacientes</h1>
+      <div className='container'>
+        <div className='row'>
+          <div  className='one-half column'>
+            <Formulario crearCita={crearCita}></Formulario>
+          </div>
+          <div  className='one-half column'>
+            {citas.length > 0 ? <h2>Administra tus citas</h2> : <h2>Agrega una cita</h2>}
+            
+            {citas.map(cita => (
+              <Cita cita={cita} key={cita.id}
+              eliminarCita={eliminarCita}></Cita>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Fragment>
   );
 }
 
